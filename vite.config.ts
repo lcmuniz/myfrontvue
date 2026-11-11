@@ -8,11 +8,10 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 export default defineConfig({
   plugins: [vue(), vueDevTools()],
   server: {
-    host: true,
+    // Dev server listens on localhost only. Docker passes `--host` explicitly
+    // and docker-compose publishes the port on 127.0.0.1.
     port: 5173,
-    watch: {
-      usePolling: true,
-    },
+    strictPort: true,
   },
   resolve: {
     alias: {
