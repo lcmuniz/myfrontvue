@@ -1,13 +1,12 @@
-version: '3.9'
-
 services:
   frontend:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    container_name: vue-vite-dev
+    container_name: myfrontvue-dev
     ports:
-      - '5173:5173'
+      # Bind to localhost only so the dev server is not reachable from the local network.
+      - '127.0.0.1:5173:5173'
     volumes:
       - .:/app
       - /app/node_modules

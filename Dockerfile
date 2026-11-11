@@ -1,25 +1,22 @@
-# ---------- BUILD ----------
-FROM node:20-alpine AS build
+# syntax=docker/dockerfile:1
 
+# ---------- build ----------
+FROM node:22-alpine AS build
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
 
 COPY . .
+ARG VITE_API_URL=https://jsonplaceholder.typicode.com
+ENV VITE_API_URL=${VITE_API_URL}
 RUN npm run build
 
-# ---------- RUNTIME ----------
-FROM nginx:alpine
-
-# Remove config default
-RUN rm /etc/nginx/conf.d/default.conf
-
-# Config custom
+# ---------- runtime ----------
+# Unprivileged nginx image: runs as a non-root user and listens on 8080.
+FROM nginxinc/nginx-unprivileged:alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Copia build do Vite
 COPY --from=build /app/dist /usr/share/nginx/html
 
-EXPOSE 80
+EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]

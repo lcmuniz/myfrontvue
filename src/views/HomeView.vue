@@ -1,27 +1,24 @@
 <template>
-  <div>
-    <h1>Posts</h1>
-
-    <ul v-if="posts.length">
-      <li v-for="post in posts" :key="post.id">{{ post.title }}</li>
+  <section>
+    <h1>Vue 3 API layer example</h1>
+    <p>
+      A small reference app showing how to keep HTTP concerns out of components: a single configured
+      client, typed resource modules, normalized errors and cancellable requests.
+    </p>
+    <p>
+      Data comes from <code>{{ apiUrl }}</code> (set <code>VITE_API_URL</code> to point it
+      elsewhere).
+    </p>
+    <ul>
+      <li><RouterLink to="/users">Browse users</RouterLink> and open a user to see their posts.</li>
+      <li><RouterLink to="/posts">Browse all posts</RouterLink>.</li>
     </ul>
-
-    <p v-else>Carregando...</p>
-  </div>
+  </section>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
-import { getPosts } from '@/api'
+<script setup lang="ts">
+import { RouterLink } from 'vue-router'
+import { DEFAULT_API_URL } from '@/api'
 
-const posts = ref([])
-
-onMounted(async () => {
-  try {
-    const response = await getPosts()
-    posts.value = response.data
-  } catch (error) {
-    console.error('Erro ao carregar posts', error)
-  }
-})
+const apiUrl = import.meta.env.VITE_API_URL || DEFAULT_API_URL
 </script>

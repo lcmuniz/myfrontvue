@@ -1,27 +1,25 @@
-<template>
-  <div>
-    <h1>Usuários</h1>
-
-    <ul v-if="users.length">
-      <li v-for="user in users" :key="user.id">{{ user.name }} ({{ user.email }})</li>
-    </ul>
-
-    <p v-else>Carregando...</p>
-  </div>
-</template>
-
-<script setup>
-import { ref, onMounted } from 'vue'
+<script setup lang="ts">
+import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
 import { getUsers } from '@/api'
+import AsyncStatus from '@/components/AsyncStatus.vue'
+import { useAsync } from '@/composables/useAsync'
 
-const users = ref([])
-
-onMounted(async () => {
-  try {
-    const response = await getUsers()
-    users.value = response.data
-  } catch (error) {
-    console.error('Erro ao carregar usuários', error)
-  }
-})
+const { data: users, error, loading, run } = useAsync((signal) => getUsers({ signal }))
+const isEmpty = computed(() => users.value?.length === 0)
 </script>
+
+<template>
+  <section>
+    <h1>Users</h1>
+
+    <AsyncStatus :loading :error :empty="isEmpty" empty-text="No users found." @retry="run">
+      <ul class="list">
+        <li v-for="user in users" :key="user.id">
+          <RouterLink :to="{ name: 'user', params: { id: user.id } }">{{ user.name }}</RouterLink>
+          <span class="muted"> · {{ user.email }}</span>
+        </li>
+      </ul>
+    </AsyncStatus>
+  </section>
+</template>
